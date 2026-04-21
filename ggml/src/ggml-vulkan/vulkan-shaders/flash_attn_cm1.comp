@@ -381,8 +381,10 @@ void main() {
                     Psh[col * psh_stride + row / 4] = f16vec4(0.0f);
                 } else {
                     const vec4 mfvec = vec4(Mf[r], Mf[r + 1], Mf[r + 2], Mf[r + 3]);
-                    const f16vec4 Pf = f16vec4(exp(vec4(sfsh[row / 4 + col * sfshstride]) - mfvec));
+                    f16vec4 Pf = f16vec4(exp(vec4(sfsh[row / 4 + col * sfshstride]) - mfvec));
+                    // Sparse V: zero negligible attention weights
                     [[unroll]] for (uint32_t vec_idx = 0; vec_idx < 4; ++vec_idx) {
+                        if (float(Pf[vec_idx]) < 1e-6) { Pf[vec_idx] = float16_t(0.0); }
                         Lf[r + vec_idx] += Pf[vec_idx];
                     }
                     Psh[col * psh_stride + row / 4] = Pf;

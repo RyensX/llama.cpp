@@ -542,6 +542,8 @@ void main() {
             FLOAT_TYPE Pf[rows_per_thread];
             [[unroll]] for (uint32_t r = 0; r < rows_per_thread; ++r) {
                 Pf[r] = FLOAT_TYPE(exp(float(Sf[r][c]) - Mf[r]));
+                // Sparse V: zero negligible attention weights
+                if (float(Pf[r]) < 1e-6) { Pf[r] = FLOAT_TYPE(0.0); }
                 Lf[r] += Pf[r];
             }
 
